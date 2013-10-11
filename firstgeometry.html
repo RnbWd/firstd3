@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>D3 Test</title>
+  <script type="text/javascript" src="d3.v3/d3.v3.js"></script>
+  <style>
+   path {
+    fill: white;
+   }
+  </style>
+</head>
+<body>
+ 
+<script>
+
+var w = 500;
+var h = 500;
+var padding = 20;
+
+
+ //The data for our line
+ var data = [ { "x": 0,  "y":0},
+              { "x": -200,  "y": 200}, 
+              { "x": 200,  "y": 200} ];
+
+var data2 = [ { "x": -100,  "y":0},
+              { "x": -100,  "y":200},
+              { "x": 100,  "y":200},
+              { "x": 100,  "y": 0} ];
+
+ var data1 = [{ "x": 0,  "y":0},
+              { "x": -100,  "y": 100}, 
+              { "x": 100,  "y": 100} ];
+ 
+ 
+ //var nScale = d3.scale.linear();
+
+ //nScale.domain([0, 500]);
+ //nScale.range([padding, w-padding]);
+
+        //y value range (h-padding, padding) allows smaller y values to appear at the bottom
+ 
+ var line = d3.svg.line()
+                          .x(function(d) { return d.x ; })
+                          .y(function(d) { return d.y ; })
+                          .interpolate("linear");
+
+//The SVG Container
+var svg = d3.select("body").append("div").append("svg")
+    .attr("width", w)
+    .attr("height", h)
+  .append("g")
+    .attr("transform", "translate(" + w / 2 + "," + (h / 2 - 100) + ")");
+
+//var bigContainer = svgContainer.append("g");
+
+//var smallContainer = svgContainer.append("g").attr("transform","translate(115,-9)");
+
+//The line SVG Path we draw
+svg.append("path")
+    .attr("id", "small")
+    .attr("stroke", "grey")
+    .attr("stroke-width", 2);
+                                                  
+
+function tween() {
+  svg.select('#small').transition().duration(3000)
+    //.ease("sin")
+    .style("fill", "gold")
+    .attrTween("d", pathTween(line(data)+"Z", 4))
+    //.append("g")
+    //.attr("transform", "translate(" + w / 2 + "," + (h / 2 - 100) + ")");
+    //.attr("d", line(json) + "Z")
+    .transition().duration(3000)
+    .attrTween("d", pathTween(line(data2)+"Z", 4))
+    .style("fill", "green")
+    .transition().duration(3000)
+    .attrTween("d", pathTween(line(data1)+"Z", 4))
+    .style("fill", "white")
+    //.select("g").attr("transform", "translate(" + w / 2 + "," + (h / 2 - 150) + ")")
+   
+    .each("end", tween);
+
+}
+
+tween();
+//var d9 = svg.select('#small').attr("d", line(json) + "Z");
+
+//console.log(d9);
+
+
+
+function pathTween(d1, precision) {
+  return function() {
+    var path0 = this,
+        path1 = path0.cloneNode(),
+        n0 = path0.getTotalLength(),
+        n1 = (path1.setAttribute("d", d1), path1).getTotalLength();
+
+    // Uniform sampling of distance based on specified precision.
+    var distances = [0], i = 0, dt = precision / Math.max(n0,n1);
+    while ((i += dt) < 1) distances.push(i);
+    distances.push(1);
+
+    // Compute point-interpolators at each distance.
+    var points = distances.map(function(t) {
+      var p0 = path0.getPointAtLength(t * n0),
+          p1 = path1.getPointAtLength(t * n1);
+      return d3.interpolate([p0.x, p0.y], [p1.x, p1.y]);
+    });
+
+    return function(t) {
+      return t <1 ? "M" + points.map(function(p) { return p(t); }).join("L") : d1;
+    };
+  };
+};
+
+//tween();
+//redraw();
+
+//setInterval(redraw, 8000);
+
+//lineFunction.y(function(d) { return nScale(d.y) ; });
+
+//var small = smallContainer.append("path")
+                           // .attr("d", lineFunction(json) + "Z")
+                           // .attr("stroke", "grey")
+                          //  .attr("stroke-width", 2)
+                          //  .attr("fill", "yellow");
+
+
+
+</script>
+</body>
+</html>     
